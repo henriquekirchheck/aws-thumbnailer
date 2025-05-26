@@ -124,9 +124,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_transform_image() -> Result<(), Error> {
-        let file = ByteStream::from_path("./test/test.png").await?;
+        let file = ByteStream::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/test/test.png")).await?;
         let tranformed = transform_image(file).await?;
-        let mut result = tokio::fs::File::create("./test/test.webp").await?;
+        let mut result = tokio::fs::File::create(concat!(env!("CARGO_MANIFEST_DIR"), "/test/test.webp")).await?;
         result
             .write_all(&tranformed.collect().await?.into_bytes())
             .await?;
