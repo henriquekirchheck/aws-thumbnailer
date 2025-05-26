@@ -20,15 +20,15 @@ resource "random_id" "bucket_identifier" {
 }
 
 locals {
-  bucket_prefix = "thumbnailer-bucket_${random_id.bucket_identifier.hex}"
+  bucket_prefix = "thumbnailer.bucket-${random_id.bucket_identifier.hex}"
 }
 
 resource "aws_s3_bucket" "original_image" {
-  bucket = "${local.bucket_prefix}_original"
+  bucket = "${local.bucket_prefix}-original"
 }
 
 resource "aws_s3_bucket" "resized_image" {
-  bucket = "${local.bucket_prefix}_resized"
+  bucket = "${local.bucket_prefix}-resized"
 }
 
 data "aws_iam_policy_document" "thumbnailer_lambda_role_policy_document" {
@@ -44,12 +44,12 @@ data "aws_iam_policy_document" "thumbnailer_lambda_role_policy_document" {
   statement {
     effect    = "Allow"
     actions   = ["s3:GetObject"]
-    resources = [aws_s3_bucket.original_image.arn]
+    resources = ["${aws_s3_bucket.original_image.arn}/*"]
   }
   statement {
     effect    = "Allow"
     actions   = ["s3:PutObject"]
-    resources = [aws_s3_bucket.resized_image.arn]
+    resources = ["${aws_s3_bucket.resized_image.arn}/*"]
   }
 }
 
@@ -87,9 +87,11 @@ resource "aws_lambda_function" "thumbnailer_lambda" {
   runtime       = "provided.al2023"
   handler       = "rust.handler"
   architectures = ["arm64"]
-  memory_size   = 128
+  memory_size   = 256
+  timeout = 12
 
   filename = "target/lambda/thumbnailer/bootstrap.zip"
+  source_code_hash = filebase64sha256("target/lambda/thumbnailer/bootstrap.zip")
 }
 
 resource "aws_lambda_permission" "thumbnailer_allow_bucket" {

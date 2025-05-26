@@ -1,3 +1,5 @@
 target/
 .direnv/
 .terraform/
+*terraform.tfstate*
+test/test.webp

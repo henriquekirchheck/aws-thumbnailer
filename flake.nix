@@ -28,6 +28,7 @@
             awscli2
             opentofu
             cargo-lambda
+            cargo-flamegraph
             (rust-bin.stable.latest.default.override {
               extensions = [ "rust-src" ];
               targets = [ "aarch64-unknown-linux-gnu" ];
